@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class AimScript : MonoBehaviour
 {
-    public Transform camera;
-    public Camera mainCamera;
+    public Transform camera;//世界坐标中的位置
+    public Camera mainCamera;//这个好像主要是用了一下它里面的一个函数，没有设计其它的东西
 
-    public string name = "wty";
-    public int weight = 1;
+    public string name = "wty";//该节点的名称
+    public int weight = 1;//记录该节点的权重
     
-    public bool isCluster = false;
-    public int clusterNode = -1;
+    public bool isCluster = false;//记录这个节点是否是一个簇
+    public int clusterNode = -1;//记录如果这是一个簇，那么它在簇的列表中的下标
 
-    public bool isMultipleMode = false;
+    public bool isMultipleMode = false;//
 
     private GameObject myObject;
     private float height;

@@ -89,7 +89,11 @@ public class KinectGestures : MonoBehaviour
 	public enum Gestures
 	{
 		None = 0,
-		PushFront,
+		RightElbowDown,//右臂的小臂垂直大臂向下是Inprogress,当手的位置在y轴高于指定高度，则动作完成
+        RightElbowUp,//右臂的小臂垂直大臂向上是Inprogress,当手的位置在y轴低于指定高度，则动作完成
+        HandsFrontChest,//双手并拢放于胸前是Inprogress, 任何一只手离肩部中心较远，则完成
+        RightHandPushFront,//右手向前伸是InProgress,放下时是完成
+        PushFront,
         RaisingRightHand,//右手上举是InProgress，放下时完成
         RaisingLeftHand,//左手上举是InProgress，放下时完成
         RaiseRightHand,
@@ -365,7 +369,152 @@ public class KinectGestures : MonoBehaviour
 		//Debug.Log("root judging:"+(jointsPos[shoulderCenterIndex].z - jointsPos[leftHandIndex].z));
 		switch(gestureData.gesture)
 		{
-			case Gestures.PushFront:
+			case Gestures.RightElbowDown:
+				switch (gestureData.state)
+                {
+                    case 0:
+                        if (jointsTracked[rightHandIndex] && jointsTracked[rightElbowIndex] && jointsTracked[rightShoulderIndex] &&
+                               Mathf.Abs(jointsPos[rightElbowIndex].y - jointsPos[rightShoulderIndex].y) < 0.05f &&//右肘与右肩有非常相近的z值和y值
+                               Mathf.Abs(jointsPos[rightElbowIndex].z - jointsPos[rightShoulderIndex].z) < 0.1f &&
+                               jointsPos[rightElbowIndex].y - jointsPos[rightHandIndex].y > 0.15f//右手与右肘在y轴上的距离不能小于0.35f
+                               )
+                        {
+                            SetGestureJoint(ref gestureData, timestamp, rightHandIndex, jointsPos[rightHandIndex]);
+                            gestureData.progress = 0.5f;
+                        }
+                        break;
+                    case 1:  // gesture complete
+                             // isInPose作为是否完成或正在完成的参数传入（传入为true的时候动作会完成）
+                             //当右大臂不保持当前动作或者 
+                             //当右手在y轴上与右肘的距离小于0.25，则动作完成
+                        bool isInPose = (jointsTracked[rightHandIndex] && jointsTracked[rightElbowIndex] && jointsTracked[rightShoulderIndex] )&&
+                               (Mathf.Abs(jointsPos[rightElbowIndex].y - jointsPos[rightShoulderIndex].y) > 0.25f ||
+                               Mathf.Abs(jointsPos[rightElbowIndex].z - jointsPos[rightShoulderIndex].z) > 0.25f ||
+                               jointsPos[rightElbowIndex].y - jointsPos[rightHandIndex].y < 0.25f);
+
+                        if (jointsTracked[rightHandIndex] && jointsTracked[rightElbowIndex] && jointsTracked[rightShoulderIndex])
+                            SetHandDiff(userId, ref gestureData, ref jointsPos, ref jointsTracked);
+
+                        if (isInPose)
+                        {
+                            Vector3 jointPos = jointsPos[gestureData.joint];
+                            CheckPoseComplete(ref gestureData, timestamp, jointPos, isInPose, KinectInterop.Constants.PoseCompleteDuration);
+                        }
+                        // check if right shoulder is still left of the right hip (leaning left)
+                        break;
+                }
+                break;
+           
+             case Gestures.RightElbowUp:
+                switch (gestureData.state)
+                {
+                    case 0:
+                        if (jointsTracked[rightHandIndex] && jointsTracked[rightElbowIndex] && jointsTracked[rightShoulderIndex] &&
+                               Mathf.Abs(jointsPos[rightElbowIndex].y - jointsPos[rightShoulderIndex].y) < 0.05f &&//右肘与右肩有非常相近的z值和y值
+                               Mathf.Abs(jointsPos[rightElbowIndex].z - jointsPos[rightShoulderIndex].z) < 0.1f &&
+                               jointsPos[rightHandIndex].y - jointsPos[rightElbowIndex].y > 0.25f//右手与右肘在y轴上的距离不能小于0.35f
+                               )
+                        {
+                            SetGestureJoint(ref gestureData, timestamp, rightHandIndex, jointsPos[rightHandIndex]);
+                            gestureData.progress = 0.5f;
+                        }
+                        break;
+                    case 1:  // gesture complete
+                             // isInPose作为是否完成或正在完成的参数传入（传入为true的时候动作会完成）
+                             //当右大臂不保持当前动作或者 
+                             //当右手在y轴上与右肘的距离小于0.25，则动作完成
+                        bool isInPose = (jointsTracked[rightHandIndex] && jointsTracked[rightElbowIndex] && jointsTracked[rightShoulderIndex] )&&
+                               (Mathf.Abs(jointsPos[rightElbowIndex].y - jointsPos[rightShoulderIndex].y) > 0.25f ||
+                               Mathf.Abs(jointsPos[rightElbowIndex].z - jointsPos[rightShoulderIndex].z) > 0.25f ||
+                               jointsPos[rightHandIndex].y - jointsPos[rightElbowIndex].y < 0.25f);
+
+                        if (jointsTracked[rightHandIndex] && jointsTracked[rightElbowIndex] && jointsTracked[rightShoulderIndex])
+                            SetHandDiff(userId, ref gestureData, ref jointsPos, ref jointsTracked);
+
+                        if (isInPose)
+                        {
+                            Vector3 jointPos = jointsPos[gestureData.joint];
+                            CheckPoseComplete(ref gestureData, timestamp, jointPos, isInPose, KinectInterop.Constants.PoseCompleteDuration);
+                        }
+                        // check if right shoulder is still left of the right hip (leaning left)
+                        break;
+                }
+                break;
+            case Gestures.HandsFrontChest:
+                switch(gestureData.state)
+                {
+                    case 0:
+                        if (jointsTracked[rightHandIndex] && jointsTracked[leftHandIndex] &&  jointsTracked[shoulderCenterIndex] &&
+                               Mathf.Abs(jointsPos[rightHandIndex].y - jointsPos[shoulderCenterIndex].y) < 0.15f&&//右手与左手竖直方向和水平方向都与肩部中心很近
+                               Mathf.Abs(jointsPos[rightHandIndex].x - jointsPos[shoulderCenterIndex].x) < 0.15f &&
+                               Mathf.Abs(jointsPos[rightHandIndex].z - jointsPos[shoulderCenterIndex].z) < 0.15f &&
+                               Mathf.Abs(jointsPos[leftHandIndex].y - jointsPos[shoulderCenterIndex].y) < 0.15f &&//左手与左手竖直方向和水平方向都与肩部中心很近
+                               Mathf.Abs(jointsPos[leftHandIndex].x - jointsPos[shoulderCenterIndex].x) < 0.15f &&
+                               Mathf.Abs(jointsPos[leftHandIndex].z - jointsPos[shoulderCenterIndex].z) < 0.15f)
+                        {
+                            SetGestureJoint(ref gestureData, timestamp, rightHandIndex, jointsPos[rightHandIndex]);
+                            gestureData.progress = 0.5f;
+                        }
+                        break;
+                    case 1:  // gesture complete
+                             // isInPose作为是否完成或正在完成的参数传入（传入为true的时候动作会完成）
+                             // 任何一只手在任何方向上偏离肩部中心超过0.3则认为动作完成
+                        bool isInPose = jointsTracked[rightHandIndex] && jointsTracked[leftHandIndex] && jointsTracked[shoulderCenterIndex] &&
+                               (Mathf.Abs(jointsPos[rightHandIndex].y - jointsPos[shoulderCenterIndex].y) > 0.3f ||
+                               Mathf.Abs(jointsPos[rightHandIndex].x - jointsPos[shoulderCenterIndex].x) > 0.3f ||
+                               Mathf.Abs(jointsPos[rightHandIndex].z - jointsPos[shoulderCenterIndex].z) > 0.3f ||
+                               Mathf.Abs(jointsPos[leftHandIndex].y - jointsPos[shoulderCenterIndex].y) > 0.3f ||
+                               Mathf.Abs(jointsPos[leftHandIndex].x - jointsPos[shoulderCenterIndex].x) > 0.3f ||
+                               Mathf.Abs(jointsPos[leftHandIndex].z - jointsPos[shoulderCenterIndex].z) > 0.3f);
+
+                        if (jointsTracked[rightHandIndex] && jointsTracked[leftHandIndex] && jointsTracked[shoulderCenterIndex])
+                            SetHandDiff(userId, ref gestureData, ref jointsPos, ref jointsTracked);
+
+                        if (isInPose)
+                        {
+                            Vector3 jointPos = jointsPos[gestureData.joint];
+                            CheckPoseComplete(ref gestureData, timestamp, jointPos, isInPose, KinectInterop.Constants.PoseCompleteDuration);
+                        }
+                        // check if right shoulder is still left of the right hip (leaning left)
+                        break;
+                }
+                break;
+            case Gestures.RightHandPushFront:
+                switch (gestureData.state)
+                {
+                    case 0:  // gesture detection - phase 1
+                             //右手纵轴上大于臀部小于肩膀，则认为进入初始状态
+                        if (jointsTracked[rightHandIndex] && jointsTracked[leftHandIndex] && jointsTracked[hipCenterIndex] && jointsTracked[shoulderCenterIndex] &&
+                               jointsPos[rightHandIndex].y >= jointsPos[hipCenterIndex].y &&
+                               jointsPos[rightHandIndex].y <= jointsPos[shoulderCenterIndex].y && 
+                               jointsPos[shoulderCenterIndex].z - jointsPos[rightHandIndex].z > 0.55f&&
+                                jointsPos[leftHandIndex].y < jointsPos[hipCenterIndex].y)
+                        {
+                            SetGestureJoint(ref gestureData, timestamp, rightHandIndex, jointsPos[rightHandIndex]);
+                            gestureData.progress = 0.5f;
+                        }
+                        break;
+
+                    case 1:  // gesture complete
+                             // isInPose作为是否完成或正在完成的参数传入（传入为true的时候动作会完成）
+                             // 如果手部与身体的长度小于一定范畴，调用
+                        bool isInPose = jointsTracked[rightHandIndex] && jointsTracked[leftHandIndex] && jointsTracked[hipCenterIndex] && jointsTracked[shoulderCenterIndex] &&
+                               (jointsPos[leftHandIndex].y >= jointsPos[hipCenterIndex].y ||
+                                jointsPos[shoulderCenterIndex].z - jointsPos[rightHandIndex].z < 0.35f);
+
+                        if (jointsTracked[rightHandIndex] && jointsTracked[hipCenterIndex] && jointsTracked[shoulderCenterIndex])
+                            SetHandDiff(userId, ref gestureData, ref jointsPos, ref jointsTracked);
+
+                        if (isInPose)
+                        {
+                            Vector3 jointPos = jointsPos[gestureData.joint];
+                            CheckPoseComplete(ref gestureData, timestamp, jointPos, isInPose, KinectInterop.Constants.PoseCompleteDuration);
+                        }
+                        // check if right shoulder is still left of the right hip (leaning left)
+                        break;
+                }
+                break;
+            case Gestures.PushFront:
 				switch(gestureData.state)
 				{
 					case 0:  // gesture detection - phase 1
@@ -404,7 +553,7 @@ public class KinectGestures : MonoBehaviour
                     case 0:  // gesture detection - phase 1
                         //右手上举，进入状态2
                         if (jointsTracked[rightHandIndex] && jointsTracked[leftHandIndex] && jointsTracked[leftShoulderIndex] &&
-                            (jointsPos[rightHandIndex].y - jointsPos[leftShoulderIndex].y) > 0.3f &&
+                            (jointsPos[rightHandIndex].y - jointsPos[leftShoulderIndex].y) > 0.55f &&
                                (jointsPos[leftHandIndex].y - jointsPos[leftShoulderIndex].y) < 0f)
                         {
                             SetGestureJoint(ref gestureData, timestamp, rightHandIndex, jointsPos[rightHandIndex]);
@@ -441,7 +590,7 @@ public class KinectGestures : MonoBehaviour
                     case 0:  // gesture detection - phase 1
                         //右手上举，进入状态2
                         if (jointsTracked[rightHandIndex] && jointsTracked[leftHandIndex] && jointsTracked[leftShoulderIndex] &&
-                            (jointsPos[leftHandIndex].y - jointsPos[leftShoulderIndex].y) > 0.3f &&
+                            (jointsPos[leftHandIndex].y - jointsPos[leftShoulderIndex].y) > 0.55f &&
                                (jointsPos[rightHandIndex].y - jointsPos[leftShoulderIndex].y) < 0f)
                         {
                             SetGestureJoint(ref gestureData, timestamp, leftHandIndex, jointsPos[leftHandIndex]);
@@ -479,7 +628,7 @@ public class KinectGestures : MonoBehaviour
 				{
 					case 0:  // gesture detection
 					//检测RaiseRightHand是否启动。首先检查关节：右手、左手、左肩
-					//检查手势位置，右手.y>0.1f+左肩.y且左手.y<左肩.y
+					//检查手势位置，右手.y>0.3f+左肩.y且左手.y<左肩.y
                     //启动，左手低于左肩，右手高于左肩
 						if(jointsTracked[rightHandIndex] && jointsTracked[leftHandIndex] && jointsTracked[leftShoulderIndex] &&
 							(jointsPos[rightHandIndex].y - jointsPos[leftShoulderIndex].y) > 0.1f &&

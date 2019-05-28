@@ -5,10 +5,11 @@ using UnityEngine;
 public class Factory : MonoBehaviour
 {
     static public int aimNumber = 10;
-    static public int aimRange = 30;
-    static public float judgeDist = 3.0f;//任意两点的欧式距离不能低于此致
+    static public int aimRange = 30;//确定产生Aim的范围
+    static public float judgeDist = 3.0f;//任意两点的欧式距离不能低于此值
     private float[] coX = new float[aimNumber];
     private float[] coY = new float[aimNumber];
+
     GameObject originAim;//目标原型
     void Start()
     {
@@ -76,3 +77,5 @@ public class Factory : MonoBehaviour
 
     }
 }
+
+

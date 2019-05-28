@@ -33,6 +33,10 @@ public class MyGestureListener : MonoBehaviour, KinectGestures.GestureListenerIn
     private bool raisingRightHand = false;
     private bool raisingLeftHand = false;
     private bool pushFront = false;
+    private bool rightHandPushFront = false;
+    private bool  handsFrontChest = false;
+    private bool rightElbowUp = false;
+    private bool rightElbowDown = false;
 
     private float posX = 0.0f;
     private float posY = 0.0f;
@@ -86,6 +90,49 @@ public class MyGestureListener : MonoBehaviour, KinectGestures.GestureListenerIn
     {
         return posY;
     }
+
+    public bool IsRightHandPushFront()
+    {
+        if (rightHandPushFront)
+        {
+            rightHandPushFront = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsHandsFrontChest()
+    {
+        if (handsFrontChest)
+        {
+            handsFrontChest = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsRightElbowUp()
+    {
+        if(rightElbowUp)
+        {
+            rightElbowUp = false;
+            return true;
+        }
+        return false;
+    }
+
+    public bool IsRightElbowDown()
+    {
+        if(rightElbowDown)
+        {
+            rightElbowDown = false;
+            return true;
+        }
+        return false;
+    }
+    
     /// <summary>
     /// Invoked when a new user is detected. Here you can start gesture tracking by invoking KinectManager.DetectGesture()-function.
     /// </summary>
@@ -103,7 +150,12 @@ public class MyGestureListener : MonoBehaviour, KinectGestures.GestureListenerIn
         manager.DetectGesture(userId, KinectGestures.Gestures.RaisingRightHand);
         manager.DetectGesture(userId, KinectGestures.Gestures.RaisingLeftHand);
         manager.DetectGesture(userId, KinectGestures.Gestures.PushFront);
+        manager.DetectGesture(userId, KinectGestures.Gestures.RightHandPushFront);
+        manager.DetectGesture(userId, KinectGestures.Gestures.HandsFrontChest);
+        manager.DetectGesture(userId, KinectGestures.Gestures.RightElbowUp);
+        manager.DetectGesture(userId, KinectGestures.Gestures.RightElbowDown);
 
+        
         if (gestureInfo != null)
         {
             gestureInfo.GetComponent<GUIText>().text = "Zoom-in, zoom-out or wheel to rotate the model. Raise hand to reset it.";
@@ -155,6 +207,30 @@ public class MyGestureListener : MonoBehaviour, KinectGestures.GestureListenerIn
 
         if (gesture == KinectGestures.Gestures.RaisingLeftHand)
             raisingLeftHand = true;
+        if(gesture == KinectGestures.Gestures.RightHandPushFront)
+        {
+            
+            Debug.Log("RightHandPushFront is in progress");
+        }
+       
+        if (gesture == KinectGestures.Gestures.HandsFrontChest)
+        {
+
+            Debug.Log(" HandsFrontChest is in progress");
+        }
+
+        if (gesture == KinectGestures.Gestures.RightElbowUp)
+        {
+
+            Debug.Log(" RightElbowUp is in progress");
+        }
+
+        if (gesture == KinectGestures.Gestures.RightElbowDown)
+        {
+
+            Debug.Log(" RightElbowDown is in progress");
+        }
+        
     }
 
     /// <summary>
@@ -179,6 +255,33 @@ public class MyGestureListener : MonoBehaviour, KinectGestures.GestureListenerIn
         {
             posX = 0.0f;
             posY = 0.0f;
+        }
+
+        if (gesture == KinectGestures.Gestures.RightHandPushFront)
+        {
+            Debug.Log("RightHandPushFront is completed");
+            rightHandPushFront = true;
+        }
+
+        if (gesture == KinectGestures.Gestures.HandsFrontChest)
+        {
+
+            Debug.Log(" HandsFrontChest is in completed");
+            handsFrontChest = true;
+        }
+
+        if (gesture == KinectGestures.Gestures.RightElbowUp)
+        {
+
+            Debug.Log(" RightElbowUp is completed");
+            rightElbowUp = true;
+        }
+
+        if (gesture == KinectGestures.Gestures.RightElbowDown)
+        {
+
+            Debug.Log(" RightElbowDown is completed");
+            rightElbowDown = true;
         }
         return true;
     }
@@ -210,6 +313,11 @@ public class MyGestureListener : MonoBehaviour, KinectGestures.GestureListenerIn
             gestureInfo.GetComponent<GUIText>().text = "Zoom-in, zoom-out or wheel to rotate the model. Raise hand to reset it."; ;
         }
 
+        if (gesture == KinectGestures.Gestures.RightHandPushFront)
+        {
+            Debug.Log("RightHandPushFront is cancelled");
+            rightHandPushFront = false;
+        }
         return true;
     }
 
