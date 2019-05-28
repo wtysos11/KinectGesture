@@ -32,7 +32,7 @@ public class Factory : MonoBehaviour
                     实现：生成指定数量的aim,并且在一部分aim上修改其needChange =  true，并为其指定一个不等于其weight的aimWeight
                      */
                     float probably = 0.5f;//需要修改的概率
-                    int number = 0;
+                    int number = 1;
                     while (number < aimNumber)
                     {
                         float x = Random.Range(-1 * aimRange, aimRange);
@@ -88,6 +88,44 @@ public class Factory : MonoBehaviour
                 }
             case 2:
                 {
+                    /*
+                     任务2：给定场景，找到所有的点，将所有的点加入到多选列表中
+                    目标：测试边界
+                    场景控制器监控所有的节点，每次实时监控从MyPresentationScript中的multiObjList，当所有的节点都在这个list中时，弹出时间
+                     */
+                    int number = 1;
+                    while (number < aimNumber)
+                    {
+                        float x = Random.Range(-1 * aimRange, aimRange);
+                        float y = Random.Range(-1 * aimRange, aimRange);
+                        bool pass = true;
+                        for (int i = 0; i < number; i++)
+                        {
+                            if (calculateDist(x, y, i))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                pass = false;
+                                break;
+                            }
+                        }
+                        if (pass)
+                        {
+                            coX[number] = x;
+                            coY[number] = y;
+                            //创建对象
+                            GameObject newObj = GameObject.Instantiate(originAim);
+                            //判断是否需要修改
+                            float changeNum = Random.Range(0.0f, 1.0f);
+
+                            newObj.SetActive(true);
+                            newObj.transform.position = new Vector3(x, y, 0);
+                            //
+                            number++;
+                        }
+                    }
                     break;
                 }
             case 3:
@@ -127,10 +165,19 @@ public class Factory : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(this.case1Num.ToString() + " "+ this.case1Report.ToString());
         if(case1Report == case1Num && sceneNum == 1)
         {
             gameOver = true;
+        }
+        else if(sceneNum == 2)
+        {
+            int len = gameObject.GetComponent<MyPresentationScript>().multiObjList.Count;
+
+            Debug.Log(len);
+            if (len == aimNumber)
+            {
+                gameOver = true;
+            }
         }
     }
 

@@ -78,7 +78,7 @@ public class MyPresentationScript : MonoBehaviour
     [Tooltip("Speed of running, when presentation slides change.")]
     public float runningSpeed = 10;
     public bool usingVR = false;
-    public int sceneNum = 1;//有三个场景，场景1为在指定时间内修改指定aim的值。场景2为给定指定场景，找到所有的点。场景3为给定场景，进行指定的聚类操作。
+    public int sceneNum = 2;//有三个场景，场景1为在指定时间内修改指定aim的值。场景2为给定指定场景，找到所有的点。场景3为给定场景，进行指定的聚类操作。
 
     // reference to the gesture listener
     private MyGestureListener gestureListener;

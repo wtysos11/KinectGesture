@@ -125,7 +125,7 @@ public class AimScript : MonoBehaviour
         GUI.skin.label.fontSize = 18;//字体大小
                                      //绘制NPC名称
         GUI.Label(new Rect(position.x - (weightSizes.x / 2), position.y - weightSizes.y, weightSizes.x, weightSizes.y), weight.ToString());
-        GUI.Label(new Rect(position.x - (nameSize.x / 2), position.y + 2*nameSize.y, nameSize.x, nameSize.y), name);
+        GUI.Label(new Rect(position.x - (nameSize.x / 2), position.y + nameSize.y, nameSize.x, nameSize.y), name);
 
         //存在aimWeight
         if (this.needChange)
