@@ -15,6 +15,13 @@ public class AimScript : MonoBehaviour
 
     public bool isMultipleMode = false;//
 
+    public bool needChange = false;
+    public int aimWeight = 1;
+
+    public Factory myfactory;//如果场景1指定，则会将Factory类赋到这里
+
+    private bool case1Finish = false;
+
     private GameObject myObject;
     private float height;
     public Vector3 lastPos;
@@ -84,6 +91,20 @@ public class AimScript : MonoBehaviour
                 camera.gameObject.GetComponent<MyPresentationScript>().selectedGameobject = null;
             }
         }
+
+        if(needChange)//场景1
+        {
+            if(aimWeight == weight && !case1Finish)
+            {
+                case1Finish = true;
+                myfactory.case1Report++;
+            }
+            else if(aimWeight != weight && case1Finish)
+            {
+                case1Finish = false;
+                myfactory.case1Report--;
+            }
+        }
     }
     //显示名字和权重
     private void OnGUI()
@@ -105,5 +126,12 @@ public class AimScript : MonoBehaviour
                                      //绘制NPC名称
         GUI.Label(new Rect(position.x - (weightSizes.x / 2), position.y - weightSizes.y, weightSizes.x, weightSizes.y), weight.ToString());
         GUI.Label(new Rect(position.x - (nameSize.x / 2), position.y + 2*nameSize.y, nameSize.x, nameSize.y), name);
+
+        //存在aimWeight
+        if (this.needChange)
+        {
+            Vector2 aimWeightSize = GUI.skin.label.CalcSize(new GUIContent("aimWeight:"+this.aimWeight.ToString()));
+            GUI.Label(new Rect(position.x - (aimWeightSize.x / 2), position.y - weightSizes.y - aimWeightSize.y, aimWeightSize.x, aimWeightSize.y), "aimWeight:" + this.aimWeight.ToString());
+        }
     }
 }
