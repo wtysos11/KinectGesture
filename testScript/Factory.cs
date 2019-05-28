@@ -16,6 +16,9 @@ public class Factory : MonoBehaviour
     private float endTime = 0;
     private bool isTimeRecord = false;
 
+    public string case3requireName = "";
+    public bool case3Over = false;
+
     GameObject originAim;//目标原型
     void Start()
     {
@@ -32,7 +35,7 @@ public class Factory : MonoBehaviour
                     实现：生成指定数量的aim,并且在一部分aim上修改其needChange =  true，并为其指定一个不等于其weight的aimWeight
                      */
                     float probably = 0.5f;//需要修改的概率
-                    int number = 1;
+                    int number = 0;
                     while (number < aimNumber)
                     {
                         float x = Random.Range(-1 * aimRange, aimRange);
@@ -77,7 +80,7 @@ public class Factory : MonoBehaviour
                             }
 
 
-
+                            newObj.GetComponent<AimScript>().name = generateName();
                             newObj.SetActive(true);
                             newObj.transform.position = new Vector3(x, y, 0);
                             //
@@ -93,7 +96,7 @@ public class Factory : MonoBehaviour
                     目标：测试边界
                     场景控制器监控所有的节点，每次实时监控从MyPresentationScript中的multiObjList，当所有的节点都在这个list中时，弹出时间
                      */
-                    int number = 1;
+                    int number = 0;
                     while (number < aimNumber)
                     {
                         float x = Random.Range(-1 * aimRange, aimRange);
@@ -117,9 +120,7 @@ public class Factory : MonoBehaviour
                             coY[number] = y;
                             //创建对象
                             GameObject newObj = GameObject.Instantiate(originAim);
-                            //判断是否需要修改
-                            float changeNum = Random.Range(0.0f, 1.0f);
-
+                            newObj.GetComponent<AimScript>().name = generateName();
                             newObj.SetActive(true);
                             newObj.transform.position = new Vector3(x, y, 0);
                             //
@@ -130,6 +131,71 @@ public class Factory : MonoBehaviour
                 }
             case 3:
                 {
+                    /*
+ 任务3：给定场景，尝试进行指定的聚类操作
+    如果聚类成功（名称符合要求），则弹出时间，不然要重新进行聚类操作。
+ */
+                    string name = "";
+                    int number = 0;
+                    while (number < aimNumber)
+                    {
+                        float x = Random.Range(-1 * aimRange, aimRange);
+                        float y = Random.Range(-1 * aimRange, aimRange);
+                        bool pass = true;
+                        for (int i = 0; i < number; i++)
+                        {
+                            if (calculateDist(x, y, i))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                pass = false;
+                                break;
+                            }
+                        }
+                        if (pass)
+                        {
+                            coX[number] = x;
+                            coY[number] = y;
+                            //创建对象
+                            GameObject newObj = GameObject.Instantiate(originAim);
+                            newObj.GetComponent<AimScript>().name = generateName();
+                            float enter = Random.Range(0.0f, 1.0f);
+                            Debug.Log(enter);
+                            if(enter<0.5f)
+                            {
+                                if(enter<0.25f)
+                                {
+                                    if(name == "")
+                                    {
+                                        name = newObj.GetComponent<AimScript>().name;
+                                    }
+                                    else
+                                    {
+                                        name = name + " " + newObj.GetComponent<AimScript>().name;
+                                    }
+                                }
+                                else
+                                {
+                                    if (name == "")
+                                    {
+                                        name = newObj.GetComponent<AimScript>().name;
+                                    }
+                                    else
+                                    {
+                                        name = newObj.GetComponent<AimScript>().name + " " + name;
+                                    }
+                                }
+                            }
+                            
+                            newObj.SetActive(true);
+                            newObj.transform.position = new Vector3(x, y, 0);
+                            //
+                            number++;
+                        }
+                    }
+                    case3requireName = name;
                     break;
                 }
             default:
@@ -138,6 +204,18 @@ public class Factory : MonoBehaviour
                 }
         }
 
+    }
+
+    string generateName()
+    {
+        int number = (int)Random.Range(3.0f, 5.0f);
+        string name = "";
+        for(int i = 0;i<number;i++)
+        {
+            int randomChar = (int)Random.Range(0, 26);
+            name += (char)(97 + randomChar);
+        }
+        return name;
     }
 
     //坐标(x,y)与list中的第i个元素进行比较，范围是否小于judgeDist
@@ -179,6 +257,10 @@ public class Factory : MonoBehaviour
                 gameOver = true;
             }
         }
+        else if(sceneNum == 3 && case3Over)
+        {
+            gameOver = true;
+        }
     }
 
     private void OnGUI()
@@ -195,6 +277,15 @@ public class Factory : MonoBehaviour
             }
             string ans = "Experiment is over, your time is " + endTime + " s";
             GUI.Label(new Rect(Screen.width / 2 - 50, 20, 70, 70), ans, style);
+        }
+
+        if(sceneNum == 3)
+        {
+            GUIStyle style = new GUIStyle();
+            style.fontSize = 20;
+            style.alignment = TextAnchor.MiddleCenter;
+
+            GUI.Label(new Rect(Screen.width / 2 - 50, 40, 70, 70), "require name using cluster:"+case3requireName, style);
         }
     }
 }

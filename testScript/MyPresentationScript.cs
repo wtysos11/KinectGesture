@@ -56,7 +56,22 @@ public class MyPresentationScript : MonoBehaviour
             string name = "";
             foreach (AimScript a in list)
             {
-                name += " "+a.name;
+                if(name == "")
+                {
+                    name = a.name;
+                }
+                else
+                {
+                    name += " " + a.name;
+                }
+            }
+            //如果场景为3的时候，设置胜利条件
+            if(gb.GetComponent<MyPresentationScript>().sceneNum == 3)
+            {
+                if(name == gb.GetComponent<Factory>().case3requireName)
+                {
+                    gb.GetComponent<Factory>().case3Over = true;
+                }
             }
             return name;
         }
@@ -296,7 +311,6 @@ public class MyPresentationScript : MonoBehaviour
         }
         else
         {
-            Debug.Log("not usingVR...\n");
             //锁定鼠标，不让它乱移动
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
