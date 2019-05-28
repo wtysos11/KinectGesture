@@ -298,6 +298,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   runningSpeed: 10
   usingVR: 0
+  sceneNum: 3
   selectedGameobject: {fileID: 0}
 --- !u!65 &1143006733
 BoxCollider:
@@ -384,6 +385,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f83946268ada69a439e10daacafff904, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  case1Report: 0
+  case3requireName: 
+  case3Over: 0
 --- !u!1 &1161049081
 GameObject:
   m_ObjectHideFlags: 0
@@ -553,6 +557,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Aim0
+      objectReference: {fileID: 0}
+    - target: {fileID: 767492738247555404, guid: b276185e3508eb74d9f7a3629916d5ed,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 767492738247555400, guid: b276185e3508eb74d9f7a3629916d5ed,
         type: 3}
